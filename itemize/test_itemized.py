@@ -2,14 +2,11 @@ from __future__ import absolute_import
 import unittest
 import os
 
-# print('--')
-# import pdb
-# pdb.set_trace()
-# print('--')
+
 if __name__ == "__main__":
     from itemize.record_exceptions import RecordError, RecordDefaultError
     from itemize.chain import ChainRecord
-    from itemize.basics import missing
+    from itemize.basics import missing, has
     from itemize.interfaces import Record, MutableRecord, DiscreteRecord, DiscreteMutableRecord, _meets
 else:
     from .record_exceptions import RecordError, RecordDefaultError
@@ -21,6 +18,7 @@ else:
 
 class BasicsTests(unittest.TestCase):
     def test_missing(self):
+        # Sequences
         self.assertEquals(
             missing(['a','b','c'], [0, 1, 2]),
             []
@@ -28,9 +26,51 @@ class BasicsTests(unittest.TestCase):
         self.assertEquals(
             missing(['a','b','c'], [0, 1, 2, 3, 4]),
             [3, 4]
-        )   
-
-
+        )
+        # Mappings
+        self.assertEquals(
+            missing({'a':1,'b':2,'c':3}, ('a','b','c')),
+            []
+        )
+        self.assertEquals(
+            missing({'a':1,'b':2,'c':3,'d':4}, ('a','b','c')),
+            ['d']
+        )
+        self.assertEquals(
+            missing({'a':1,'b':2,'c':3,'d':4,5:'55'}, ('a','b','c',5)),
+            ['d', 5]
+        )
+    def test_has(self):
+        print('--')
+        import pdb
+        pdb.set_trace()
+        print('--')
+        # Sequences
+        self.assertEquals(
+            has(['a','b','c'], [0, 1, 2]),
+            True
+        )
+        self.assertEquals(
+            has(['a','b','c'], [0, 1, 2, 3, 4]),
+            False
+        )
+        # Mappings
+        self.assertEquals(
+            has({'a':1,'b':2,'c':3}, ('a','b','c')),
+            True
+        )
+        self.assertEquals(
+            missing({'a':1,'b':2,'c':3,'d':4}, ('a','b','c')),
+            False
+        )
+        self.assertEquals(
+            missing({'a':1,'b':2,'c':3,'d':4,5:'55'}, ('a','b','c',5)),
+            False
+        )
+        
+    
+        
+        
 class ChainTests(unittest.TestCase):
     """
     @todo: Add a test checking for raising RecordError for missing index
