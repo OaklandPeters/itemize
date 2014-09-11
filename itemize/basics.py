@@ -10,14 +10,22 @@ Guiding Principles:
         missing
         has
 
+@todo: Consider making some/many of these into dispatch functions.
+    ... of the Pythonic type, where they defer to methods on first argument,
+        if one exists, and have default behavior otherwise.
+    @todo: Example: get(mydict, 'value', default=) makes use of mydict.get() 
+        ... requires special vectorizing handling if multiple keys passed in
+            
+
 """
 from __future__ import absolute_import
 import collections
 # Local imports from this package
 from .interfaces import Record, MutableRecord
 # Local imports from external support libraries
-from .extern.unroll import compr
+from .extern.unroll import compr, unroll
 from .record_exceptions import RecordError
+from .shared import NotPassed, _ensure_tuple
 from .chain import ChainRecord
 
 __all__ = [
@@ -25,17 +33,20 @@ __all__ = [
     'has',
     'assertion',
     'get',
+    'get_all',
     'chain',
     'merge',
     'pairs',
     'indexes',
-    'elements'
+    'elements',
+    
+    
+    'iterget',
+    
 ]
 # Future: ChainObject
 
-class NotPassed(object):
-    """Alternative to None in function defaults."""
-    pass
+
 
 
 def missing(record, indexes):
@@ -70,18 +81,59 @@ def assertion(record, indexes, name='object'):
             name, ", ".join(indexes)
         ))
 
-def get(record, indexes, default=NotPassed):
+# def get(record, indexes, default=NotPassed):
+#     indexes = _ensure_tuple(indexes)
+#     for index in indexes:
+#         try:
+#             return record[index]
+#         except (LookupError, TypeError):
+#             pass
+#     if default is NotPassed:
+#         raise RecordError("Indexes not found: '{0}'".format(
+#             ", ".join(repr(index) for index in indexes))
+#         )
+#     else:
+#         return default
+
+def iterget(record, indexes, default=NotPassed):
+    indexes = _ensure_tuple(indexes)
+    yielded = False
     for index in indexes:
         try:
-            return record[index]
+            yield record[index]
+            yielded = True
         except (LookupError, TypeError):
             pass
-    if default is NotPassed:
-        raise RecordError("Could not find any of indexes: '{0}'".format(
-            ", ".join(indexes))
-        )
-    else:
-        return default
+    if not yielded:
+        if default is NotPassed:
+            raise RecordError("Indexes not found: {0}".format(
+                ", ".join(repr(index) for index in indexes))
+            )
+        else:
+            yield default
+        
+@unroll(lambda iterable: iter(iterable).next()) # get first
+def get(record, indexes, default=NotPassed):
+    return iterget(record, indexes, default)
+
+@unroll(list)
+def get_all(record, indexes, default=NotPassed):
+    return iterget(record, indexes, default)
+#     @compr(list)
+#     def results():
+#         for index in indexes:
+#             try:
+#                 yield record[index]
+#             except (LookupError, TypeError):
+#                 pass
+#         if default is NotPassed:
+#             raise RecordError("Could not find any of indexes: '{0}'".format(
+#                 ", ".join(indexes))
+#             )
+#         else:
+#             yield default
+#     return results
+
 
 def merge(*records):
     return dict(

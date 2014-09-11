@@ -10,16 +10,12 @@ import sys
 
 from .interfaces import Record, DiscreteRecord
 from .record_exceptions import RecordError, RecordDefaultError
-
+from .shared import NotPassed
 from .extern.clsproperty import VProperty
 
 
 
 
-
-class NotPassed(object):
-    """Represents non-passed arguments. Alternative to using None."""
-    pass
 
 
 # Experimental - trying for simplicity
@@ -100,16 +96,20 @@ class ChainRecord(DiscreteChainRecord, collections.Mapping):
             else:
                 return self.default
     def get(self, index, default=NotPassed):
+        """Get index, but allows specifying a default via argument.
+        Default argument takes precedence over default attribute
+        (self.default) - usually specified during initialization.
+        """
         try:
             return self._getitem(index)
         except RecordError:
-            if default is NotPassed:
-                if self.default is NotPassed:
-                    raise
-                else:
-                    return self.default
-            else:
+            if default is not NotPassed:
                 return default
+            else:
+                if self.default is not NotPassed:
+                    return self.default
+                else:
+                    raise
     @VProperty
     class records(object):
         def _get(self):
