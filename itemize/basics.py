@@ -21,12 +21,12 @@ Guiding Principles:
 from __future__ import absolute_import
 import collections
 # Local imports from this package
+from .shared import NotPassed, _ensure_tuple, RecordError, NoDispatch
+#from .chain import ChainRecord
 from .interfaces import Record, MutableRecord
 # Local imports from external support libraries
 from .extern.unroll import compr, unroll
-from .record_exceptions import RecordError
-from .shared import NotPassed, _ensure_tuple
-from .chain import ChainRecord
+
 
 __all__ = [
     'missing',
@@ -95,6 +95,9 @@ def assertion(record, indexes, name='object'):
 #     else:
 #         return default
 
+    
+    
+
 def iterget(record, indexes, default=NotPassed):
     indexes = _ensure_tuple(indexes)
     yielded = False
@@ -116,9 +119,27 @@ def iterget(record, indexes, default=NotPassed):
 def get(record, indexes, default=NotPassed):
     return iterget(record, indexes, default)
 
+# def dispatcher(obj, attr):
+#     if hasattr(obj, attr):
+#         return getattr(obj, attr)
+#     else:
+#         raise NoDispatch(attr)
+# 
+# 
+# def get(record, indexes, default=NotPassed):
+#     try:
+#         return dispatcher(record, 'get')(indexes, default=default)
+#     except NoDispatch:
+#         return iterget(record, indexes, default=default).next()
+
+
 @unroll(list)
 def get_all(record, indexes, default=NotPassed):
     return iterget(record, indexes, default)
+
+
+
+
 #     @compr(list)
 #     def results():
 #         for index in indexes:
@@ -142,8 +163,9 @@ def merge(*records):
         for index, element in pairs(record)
     )
 
-def chain(*records, **kwargs):
-    return ChainRecord(*records, **kwargs)
+# Moved: because chain.py depends on basics.py
+# def chain(*records, **kwargs):
+#     return ChainRecord(*records, **kwargs)
 
 def pairs(record):
     if isinstance(record, collections.Mapping):

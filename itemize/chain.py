@@ -1,16 +1,10 @@
 from __future__ import absolute_import
 import collections
 import sys
-# if __name__ == "__main__":
-#     from interfaces import Record
-#     from record_exceptions import RecordError, RecordDefaultError
-# else:
-#     from .interfaces import Record
-#     from .record_exceptions import RecordError, RecordDefaultError
 
+from .basics import iterget, get, get_all
 from .interfaces import Record, DiscreteRecord
-from .record_exceptions import RecordError, RecordDefaultError
-from .shared import NotPassed
+from .shared import NotPassed, RecordError, RecordDefaultError
 from .extern.clsproperty import VProperty
 
 
@@ -72,44 +66,75 @@ class DiscreteChainRecord(SimpleChainRecord, DiscreteRecord):
         )
             
 
+#------- Original ChainRecord:
+# class ChainRecord(DiscreteChainRecord, collections.Mapping):
+#     """Adds ability to specify a collection-wide default (like defaultdict),
+#     
+#     """
+#     def __init__(self, *records, **kwargs):
+#         self.records = records
+#         self.default = kwargs.get('default', NotPassed)
+#     def _getitem(self, index):
+#         for record in self._records:
+#             try:
+#                 return record[index]
+#             except (LookupError, TypeError):
+#                 pass
+#         raise RecordError(index)
+#     def __getitem__(self, index):
+#         """Look for a key in self.records. If not found, raise RecordError."""
+#         try:
+#             return self._getitem(index)
+#         except RecordError:
+#             if self.default is NotPassed:
+#                 raise
+#             else:
+#                 return self.default
+#     def get(self, index, default=NotPassed):
+#         """Get index, but allows specifying a default via argument.
+#         Default argument takes precedence over default attribute
+#         (self.default) - usually specified during initialization.
+#         """
+#         try:
+#             return self._getitem(index)
+#         except RecordError:
+#             if default is not NotPassed:
+#                 return default
+#             else:
+#                 if self.default is not NotPassed:
+#                     return self.default
+#                 else:
+#                     raise
+# #     def _itergetitem(self, index):
+# #         yielded = False
+# #         for record in self._records:
+#             
+#     @VProperty
+#     class records(object):
+#         def _get(self):
+#             return self._records
+#         def _set(self, value):
+#             self._records = value
+#         def _del(self):
+#             del self._records
+#         def _val(self, value):
+#             if not isinstance(value, collections.Sequence) and not isinstance(value, basestring):
+#                 raise TypeError("'records' must be a Sequence or basestring.")
+#             for i, rec in enumerate(value):
+#                 if not isinstance(rec, DiscreteRecord):
+#                     raise TypeError("'records[{0}] must be a DiscreteRecord")
+#             return value
+
 class ChainRecord(DiscreteChainRecord, collections.Mapping):
     """Adds ability to specify a collection-wide default (like defaultdict),
     
+    for .iterget(), .get(), .get_all():
+        default passed in as argument takes priority over default
+        passed into __init__
     """
     def __init__(self, *records, **kwargs):
         self.records = records
         self.default = kwargs.get('default', NotPassed)
-    def _getitem(self, index):
-        for record in self._records:
-            try:
-                return record[index]
-            except (LookupError, TypeError):
-                pass
-        raise RecordError(index)
-    def __getitem__(self, index):
-        """Look for a key in self.records. If not found, raise RecordError."""
-        try:
-            return self._getitem(index)
-        except RecordError:
-            if self.default is NotPassed:
-                raise
-            else:
-                return self.default
-    def get(self, index, default=NotPassed):
-        """Get index, but allows specifying a default via argument.
-        Default argument takes precedence over default attribute
-        (self.default) - usually specified during initialization.
-        """
-        try:
-            return self._getitem(index)
-        except RecordError:
-            if default is not NotPassed:
-                return default
-            else:
-                if self.default is not NotPassed:
-                    return self.default
-                else:
-                    raise
     @VProperty
     class records(object):
         def _get(self):
@@ -125,6 +150,35 @@ class ChainRecord(DiscreteChainRecord, collections.Mapping):
                 if not isinstance(rec, DiscreteRecord):
                     raise TypeError("'records[{0}] must be a DiscreteRecord")
             return value
+        
+    def iterget(self, indexes, default=NotPassed):
+        yielded = False
+        for record in self._records:
+            for value in iterget(record, indexes):
+                yield value
+                yielded = True
+        if not yielded:
+            if default is NotPassed:
+                if self.default is NotPassed:
+                    raise RecordError("Indexes not found: {0}".format(
+                        ", ".join(repr(index) for index in indexes))
+                        )
+                else:
+                    yield self.default
+            else:
+                yield default
+    def get(self, indexes, default=NotPassed):
+        return self.iterget(indexes, default=default).next()
+    def get_all(self, indexes, default=NotPassed):
+        return list(self.iterget(indexes, default=default))
+    def __getitem__(self, indexes):
+        return self.get(indexes)
+
+
+
+
+
+
 
 
 #==============================================================================

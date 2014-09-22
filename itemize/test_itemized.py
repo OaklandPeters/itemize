@@ -4,17 +4,15 @@ import os
 
 
 if __name__ == "__main__":
-    from itemize.record_exceptions import RecordError, RecordDefaultError
     from itemize.chain import ChainRecord
     from itemize.basics import missing, has, get, get_all
     from itemize.interfaces import Record, MutableRecord, DiscreteRecord, DiscreteMutableRecord, _meets
-    from itemize.shared import NotPassed
+    from itemize.shared import NotPassed, RecordError, RecordDefaultError
 else:
-    from .record_exceptions import RecordError, RecordDefaultError
     from .chain import ChainRecord
     from .basics import missing, has, get, get_all
     from .interfaces import Record, MutableRecord, DiscreteRecord, DiscreteMutableRecord, _meets
-    from .shared import NotPassed
+    from .shared import NotPassed, RecordError, RecordDefaultError
 
 
 class BasicsTests(unittest.TestCase):
@@ -233,8 +231,24 @@ class ChainTests(unittest.TestCase):
         self.assertEqual(cxn.proptable, 'testproptb')
         self.assertEqual(cxn.socket, None)
 
-
-        
+#     def test_chain_get(self):
+#         map1 = {'a':'a1', 'b':'b2', 3:'33'}        
+#         sequence2 = (1, 2, 3, 4)
+#         sequence3 = ['s1', 's2', 's3', 's4', 's5', 's6']
+#         map4 = {'b':'map4-b', 'c':'map4-c', 3:'map4-3'}
+#         
+#         cm14 = ChainRecord(map1, map4)
+#         cm23 = ChainRecord(sequence2, sequence3)
+#         cm123 = ChainRecord(map1, sequence2, sequence3)
+#         
+# 
+#         self.assertEqual(get(cm14, 'a'), 'a1')
+#         self.assertEqual(get(cm14, ['a']), 'a1')
+#         self.assertEqual(get(cm14, ['c']), 'map4-c')
+#         self.assertEqual(get(cm14, ['A', 'c']), 'map4-c')
+#         
+#         get(cm14, ('a'))
+#         get(cm14, ('a',))
 
 
 class InterfacesTests(unittest.TestCase):

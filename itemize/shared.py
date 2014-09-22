@@ -7,16 +7,7 @@ Principles:
 """
 import collections
 
-
-
-
-
-class NotPassed(object):
-    """Represents non-passed arguments. Alternative to using None, useful
-    in cases where you want to distinguish passing in the value of 'None' from
-    'No-value-was-provided'."""
-    pass
-
+from .extern.nulltype import NotPassed 
 
 #==============================================================================
 #    Exceptions
@@ -30,6 +21,11 @@ class RecordDefaultError(RecordError):
     during initialization (via keywords)."""
     pass
 
+class NoDispatch(Exception):
+    """Represents failure in dispatching, and is used for flow-control, 
+    somewhat similarly to the way the iterators use StopIteration.
+    """
+    pass
 
 
 #==============================================================================
