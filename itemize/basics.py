@@ -5,6 +5,15 @@ Guiding Principles:
 (1) Strictness: These should depend only on the Record having __getitem__
 
 
+@todo: Decide on @MethodDispatcher: problem: get(mydict, 'a') dispatches to mydict.get('a')
+    Which I do NOT want
+    I DO want it to dispatch to get for ChainRecord, etc
+
+@todo: Rest get(), get_all(), on operator.itemgetter()   (standard library)
+
+
+
+
 @todo: unittests for these functions.
     Unittests written:
         missing
@@ -24,6 +33,7 @@ import collections
 from .shared import NotPassed, _ensure_tuple, RecordError, NoDispatch
 #from .chain import ChainRecord
 from .interfaces import Record, MutableRecord
+from .dispatcher import MethodDispatcher
 # Local imports from external support libraries
 from .extern.unroll import compr, unroll
 
@@ -39,10 +49,7 @@ __all__ = [
     'pairs',
     'indexes',
     'elements',
-    
-    
     'iterget',
-    
 ]
 # Future: ChainObject
 
@@ -79,25 +86,9 @@ def assertion(record, indexes, name='object'):
         raise AssertionError(str.format(
             "'{0}' is missing required indexes: {1}",
             name, ", ".join(indexes)
-        ))
+        ))    
 
-# def get(record, indexes, default=NotPassed):
-#     indexes = _ensure_tuple(indexes)
-#     for index in indexes:
-#         try:
-#             return record[index]
-#         except (LookupError, TypeError):
-#             pass
-#     if default is NotPassed:
-#         raise RecordError("Indexes not found: '{0}'".format(
-#             ", ".join(repr(index) for index in indexes))
-#         )
-#     else:
-#         return default
-
-    
-    
-
+#@MethodDispatcher()
 def iterget(record, indexes, default=NotPassed):
     indexes = _ensure_tuple(indexes)
     yielded = False
@@ -114,46 +105,26 @@ def iterget(record, indexes, default=NotPassed):
             )
         else:
             yield default
+
+def _first(iterable):
+    return iter(iterable).next()
         
-@unroll(lambda iterable: iter(iterable).next()) # get first
+#@MethodDispatcher()
+@unroll(_first)
 def get(record, indexes, default=NotPassed):
     return iterget(record, indexes, default)
 
-# def dispatcher(obj, attr):
-#     if hasattr(obj, attr):
-#         return getattr(obj, attr)
-#     else:
-#         raise NoDispatch(attr)
-# 
-# 
-# def get(record, indexes, default=NotPassed):
-#     try:
-#         return dispatcher(record, 'get')(indexes, default=default)
-#     except NoDispatch:
-#         return iterget(record, indexes, default=default).next()
-
-
+#@MethodDispatcher()
 @unroll(list)
 def get_all(record, indexes, default=NotPassed):
+    #return list(iterget(record, indexes, default))
     return iterget(record, indexes, default)
 
 
 
 
-#     @compr(list)
-#     def results():
-#         for index in indexes:
-#             try:
-#                 yield record[index]
-#             except (LookupError, TypeError):
-#                 pass
-#         if default is NotPassed:
-#             raise RecordError("Could not find any of indexes: '{0}'".format(
-#                 ", ".join(indexes))
-#             )
-#         else:
-#             yield default
-#     return results
+
+
 
 
 def merge(*records):

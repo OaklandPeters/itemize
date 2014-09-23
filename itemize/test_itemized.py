@@ -232,6 +232,10 @@ class ChainTests(unittest.TestCase):
         self.assertEqual(cxn.socket, None)
 
 #     def test_chain_get(self):
+#        """Target:
+#        itemize.get(itemize.chain(*records), *indexes)
+#        """
+#
 #         map1 = {'a':'a1', 'b':'b2', 3:'33'}        
 #         sequence2 = (1, 2, 3, 4)
 #         sequence3 = ['s1', 's2', 's3', 's4', 's5', 's6']
@@ -276,10 +280,23 @@ class InterfacesTests(unittest.TestCase):
         self.assert_(not _meets(set(), DiscreteMutableRecord))
 
 
+    def test_equivalents(self):
+        d1 = {'a':1, 'b':2}
+        d2 = {'a':3, 'd':4}
+        cm = ChainRecord(d1, d2, default='baz')
+        
+        def compare(index):
+            A = get(cm, index)
+            B = cm.get(index)
+            C = cm[index]
+            self.assertEquals(A, B)
+            self.assertEquals(A, C)
+        
+        compare('a')
+        compare('b')
+        compare('d')
+        compare(0)
 
-# class CleverGetTests(unittest.TestCase):
-#     def test_itemget(self):
-#         pass
         
 
 if __name__ == "__main__":

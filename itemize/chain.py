@@ -2,9 +2,10 @@ from __future__ import absolute_import
 import collections
 import sys
 
-from .basics import iterget, get, get_all
+#from .basics import iterget, get, get_all
+from . import basics
 from .interfaces import Record, DiscreteRecord
-from .shared import NotPassed, RecordError, RecordDefaultError
+from .shared import NotPassed, RecordError, RecordDefaultError, _ensure_tuple
 from .extern.clsproperty import VProperty
 
 
@@ -66,65 +67,6 @@ class DiscreteChainRecord(SimpleChainRecord, DiscreteRecord):
         )
             
 
-#------- Original ChainRecord:
-# class ChainRecord(DiscreteChainRecord, collections.Mapping):
-#     """Adds ability to specify a collection-wide default (like defaultdict),
-#     
-#     """
-#     def __init__(self, *records, **kwargs):
-#         self.records = records
-#         self.default = kwargs.get('default', NotPassed)
-#     def _getitem(self, index):
-#         for record in self._records:
-#             try:
-#                 return record[index]
-#             except (LookupError, TypeError):
-#                 pass
-#         raise RecordError(index)
-#     def __getitem__(self, index):
-#         """Look for a key in self.records. If not found, raise RecordError."""
-#         try:
-#             return self._getitem(index)
-#         except RecordError:
-#             if self.default is NotPassed:
-#                 raise
-#             else:
-#                 return self.default
-#     def get(self, index, default=NotPassed):
-#         """Get index, but allows specifying a default via argument.
-#         Default argument takes precedence over default attribute
-#         (self.default) - usually specified during initialization.
-#         """
-#         try:
-#             return self._getitem(index)
-#         except RecordError:
-#             if default is not NotPassed:
-#                 return default
-#             else:
-#                 if self.default is not NotPassed:
-#                     return self.default
-#                 else:
-#                     raise
-# #     def _itergetitem(self, index):
-# #         yielded = False
-# #         for record in self._records:
-#             
-#     @VProperty
-#     class records(object):
-#         def _get(self):
-#             return self._records
-#         def _set(self, value):
-#             self._records = value
-#         def _del(self):
-#             del self._records
-#         def _val(self, value):
-#             if not isinstance(value, collections.Sequence) and not isinstance(value, basestring):
-#                 raise TypeError("'records' must be a Sequence or basestring.")
-#             for i, rec in enumerate(value):
-#                 if not isinstance(rec, DiscreteRecord):
-#                     raise TypeError("'records[{0}] must be a DiscreteRecord")
-#             return value
-
 class ChainRecord(DiscreteChainRecord, collections.Mapping):
     """Adds ability to specify a collection-wide default (like defaultdict),
     
@@ -152,14 +94,21 @@ class ChainRecord(DiscreteChainRecord, collections.Mapping):
             return value
         
     def iterget(self, indexes, default=NotPassed):
+        """
+        default: can be provided by argument, or via property (fallback)
+        """
+        indexes = _ensure_tuple(indexes)
         yielded = False
-        for record in self._records:
-            for value in iterget(record, indexes):
-                yield value
-                yielded = True
+        for record in self.records:
+            for index in indexes:
+                try:
+                    yield record[index]
+                    yielded = True
+                except (LookupError, TypeError):
+                    pass
         if not yielded:
-            if default is NotPassed:
-                if self.default is NotPassed:
+            if default is NotPassed: #check argument
+                if self.default is NotPassed: #check property
                     raise RecordError("Indexes not found: {0}".format(
                         ", ".join(repr(index) for index in indexes))
                         )
@@ -167,6 +116,7 @@ class ChainRecord(DiscreteChainRecord, collections.Mapping):
                     yield self.default
             else:
                 yield default
+        
     def get(self, indexes, default=NotPassed):
         return self.iterget(indexes, default=default).next()
     def get_all(self, indexes, default=NotPassed):

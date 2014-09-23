@@ -7,7 +7,7 @@ Principles:
 """
 import collections
 
-from .extern.nulltype import NotPassed 
+from .extern.nulltype import NotPassed, NotPassedType
 
 #==============================================================================
 #    Exceptions

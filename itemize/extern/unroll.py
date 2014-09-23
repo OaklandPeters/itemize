@@ -34,7 +34,7 @@ def unroll(*converters):
     #Compose all converter functions
     convert = compose(*converters)
      
-    @functools.wraps(convert)
+    #@functools.wraps(convert)
     def outer(func): #pylint: disable=C0111
         @functools.wraps(func)
         def inner(*args, **kwargs): #pylint: disable=C0111
@@ -53,7 +53,7 @@ def compose(inner, *others):
      
     accumulator = inner
     for func in others:
-        accumulator = _compose(accumulator, func) 
+        accumulator = _compose(accumulator, func)
     return accumulator
 def _compose(inner, outer):
     """result( arguments ) = outer( inner( arguments )"""
