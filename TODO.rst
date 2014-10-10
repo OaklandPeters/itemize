@@ -6,6 +6,8 @@ Needed Features
 -----------------
  * Provide easy adaptors to allow this to work for objects. Ex. 'get' applied to getting attributes (this is basically the same as the old _tryget) ~ get(vars(obj), names, default=None).
  * Fill in examples in README.rst
+ * Add class description/doc for interfaces: Record, MutableRecord, Discrete, DiscreteRecord, DiscreteMutableRecord
+ * Add class description/doc for chain.py: SimpleChainRecord, DiscreteChainRecord, ChainRecord
  
 
 Refactoring

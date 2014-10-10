@@ -41,15 +41,15 @@ from .extern.unroll import compr, unroll
 __all__ = [
     'missing',
     'has',
-    'assertion',
+    'assert_missing',
+    'iterget',
     'get',
     'get_all',
-    'chain',
+    #'chain',    # currently not provided. Should I introduce as access point to chainrecord?
     'merge',
     'pairs',
     'indexes',
-    'elements',
-    'iterget',
+    'elements',    
 ]
 # Future: ChainObject
 
@@ -78,7 +78,7 @@ def has(record, indexes):
     """Predicate. """
     return len(missing(record, indexes)) == 0
 
-def assertion(record, indexes, name='object'):
+def assert_missing(record, indexes, name='object'):
     missing_indexes = missing(record, indexes)
     if len(missing_indexes) == 0:
         return record
