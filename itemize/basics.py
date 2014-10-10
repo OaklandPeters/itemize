@@ -86,7 +86,7 @@ def assertion(record, indexes, name='object'):
         raise AssertionError(str.format(
             "'{0}' is missing required indexes: {1}",
             name, ", ".join(indexes)
-        ))    
+        ))
 
 #@MethodDispatcher()
 def iterget(record, indexes, default=NotPassed):
