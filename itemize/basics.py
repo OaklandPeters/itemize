@@ -54,8 +54,7 @@ __all__ = [
 # Future: ChainObject
 
 
-
-
+        
 def missing(record, indexes):
     """Return list of indexes which are not present in record.
 

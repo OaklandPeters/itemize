@@ -6,6 +6,9 @@ import collections
 
 class Record(object):
     """
+    Root ABC for all record-types. Record types generalizes Sequence and Mapping,
+    representing item-containing objects.
+    
     @todo Add Mixins
     """
     __metaclass__ = abc.ABCMeta
@@ -32,6 +35,10 @@ class MutableRecord(Record):
         return NotImplemented
 
 class Discrete(collections.Sized, collections.Iterable):
+    """
+    ABC for collections of finite size, which are iterable. Intended to be used
+    with
+    """
     __metaclass__ = abc.ABCMeta
     @classmethod
     def __subclasshook__(cls, subclass):
