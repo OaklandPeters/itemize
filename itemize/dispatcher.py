@@ -1,9 +1,9 @@
 from __future__ import absolute_import
-import unittest
 import collections
 import functools
 from .shared import NotPassed, NotPassedType
 from .extern.clsproperty import VProperty
+
 
 class MethodDispatcher(object):
     """Method-dispatcher.
@@ -11,15 +11,16 @@ class MethodDispatcher(object):
     """
     def __init__(self, selector=NotPassed):
         self.selector = self.validate(selector)
-    
+
     def __call__(self, func):
         name = func.__name__
+
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             target, nargs, nkwargs = self.selector(*args, **kwargs)
-            if hasattr(target, name): # dispatch to method
+            if hasattr(target, name):  # dispatch to method
                 method = getattr(target, name)
-                
+
                 try:
                     return method(*nargs, **nkwargs)
                 except TypeError:
@@ -27,10 +28,10 @@ class MethodDispatcher(object):
                     import pdb
                     pdb.set_trace()
                     print(TypeError)
-            else: # original call
+            else:  # original call
                 return func(*args, **kwargs)
         return wrapper
-        
+
     def validate(self, selector=NotPassed):
         """Validation actually handled via the property on selector."""
         return selector
@@ -39,10 +40,13 @@ class MethodDispatcher(object):
     class selector(object):
         def _get(self):
             return self._selector
+
         def _set(self, value):
             self._selector = value
+
         def _del(self):
             del self._selector
+
         def _val(self, value):
             if isinstance(value, collections.Callable):
                 return value
@@ -55,27 +59,31 @@ class MethodDispatcher(object):
             else:
                 raise TypeError("Invalid 'selector': must be Callable, int, or basestring.")
 
+
 def _make_positional_arg_selector(index):
     """Function factory.
     (*args, **kwargs) --> (target, new_args, kwargs)
     Make selector into (*args, **kwargs), for a positional index (an integer).
-    
+
     Essentially, just splices out 'target' from 'args'.
     """
     assert(isinstance(index, int))
+
     def selector(*args, **kwargs):
         arg_list = list(args)
         target = arg_list.pop(index)
         positionals = tuple(arg_list)
         return (target, positionals, kwargs)
     return selector
+
+
 def _make_keyword_arg_selector(index):
     """Function factory.
     (*args, **kwargs) --> (target, args, new_kwargs)
     """
     assert(isinstance(index, basestring))
+
     def selector(*args, **kwargs):
         target = kwargs.pop(index)
         return (target, args, kwargs)
     return selector
-        

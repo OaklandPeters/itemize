@@ -8,7 +8,7 @@ class Record(object):
     """
     Root ABC for all record-types. Record types generalizes Sequence and Mapping,
     representing item-containing objects.
-    
+
     @todo Add Mixins
     """
     __metaclass__ = abc.ABCMeta

@@ -5,6 +5,10 @@ Guiding Principles:
 (1) Strictness: These should depend only on the Record having __getitem__
 
 
+@todo: Add Epydoc strings @type & @return + 1 sentance description of functions
+
+@todo: Add recursive/chain iterset - parallel to iterget
+
 @todo: Decide on @MethodDispatcher: problem: get(mydict, 'a') dispatches to mydict.get('a')
     Which I do NOT want
     I DO want it to dispatch to get for ChainRecord, etc
