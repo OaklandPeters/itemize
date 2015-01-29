@@ -36,7 +36,7 @@ from __future__ import absolute_import
 
 import collections
 
-from .shared import NotPassed, _ensure_tuple, RecordError
+from .shared import NotPassed, _ensure_tuple, RecordError, _first
 from .interfaces import Record, MutableRecord  # pylint: disable=unused-import
 
 from .extern.unroll import unroll
@@ -213,11 +213,3 @@ def elements(record):
         return (elm for index, elm in enumerate(record))
     else:
         raise TypeError("'record' should be a Mapping or Sequence.")
-
-# Local utility functions
-def _first(iterable):
-    """
-    @type: iterable: Iterable[Any]
-    @rtype: Any
-    """
-    return iter(iterable).next()

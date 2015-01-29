@@ -49,3 +49,10 @@ def _ensure_tuple(obj):
     #Other Iterables, Strings, and non-Iterables - wrap in iterable first
     else:
         return tuple([obj])
+
+def _first(iterable):
+    """
+    @type: iterable: Iterable[Any]
+    @rtype: Any
+    """
+    return iter(iterable).next()
