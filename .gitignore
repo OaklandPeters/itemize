@@ -1,2 +1,4 @@
 *.pyc
 deprecated
+*.sublime-project
+*.sublime-workspace
