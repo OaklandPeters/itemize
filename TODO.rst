@@ -28,7 +28,7 @@ Unittests
 * For basics.iterget
 * For basics.merge: complex. Should test nesting, overriding, etc. Sequences/Mappings, etc
 * For basics.pairs
-* For basics.indexes
+* For basics.indices
 * For basics.elements
 
 Packaging
@@ -41,7 +41,7 @@ Bugs
 * Standardize handling of 'indexes', across functions. For example, `missing()` does not cast indexes to tuple, but `get()` does.
     * Standardize handling of 'indexes' in chain.ChainRecord
 * Functions in basics.py should raise custom Exception types, not builtins.
-* basics: pairs, indexes, elements: the return type is uncertain. Arrange it to cast to list. Requires smart checking of return type. Sequences[x] --> List[x], Iterable[x] --> List[x], List[x] unchanged, Atomic[x] (non-Sequence) --> List[Atomic[x]].
+* basics.pairs, basics.indices, basics.elements: the return type is uncertain. Arrange it to cast to list. Requires smart checking of return type. Sequences[x] --> List[x], Iterable[x] --> List[x], List[x] unchanged, Atomic[x] (non-Sequence) --> List[Atomic[x]].
 * chain.ChainRecord: exceptions raised should be custom exception types.
 * chain.ChainRecord.iterget: should raise: class RecordIndexError(RecordError, KeyError, IndexError)
 

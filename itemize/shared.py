@@ -22,7 +22,7 @@ class RecordDefaultError(RecordError):
     pass
 
 class NoDispatch(Exception):
-    """Represents failure in dispatching, and is used for flow-control, 
+    """Represents failure in dispatching, and is used for flow-control,
     somewhat similarly to the way the iterators use StopIteration.
     """
     pass
@@ -32,7 +32,7 @@ class NoDispatch(Exception):
 #    Utility Functions
 #==============================================================================
 def _ensure_tuple(obj):
-    """Ensure that object is a tuple, or is wrapped in one. 
+    """Ensure that object is a tuple, or is wrapped in one.
     Also handles some special cases.
     Tuples are unchanged; NonStringSequences and Iterators are converted into
     a tuple containing the same elements; all others are wrapped by a tuple.

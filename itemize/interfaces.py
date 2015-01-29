@@ -38,6 +38,8 @@ class Discrete(collections.Sized, collections.Iterable):
     """
     ABC for collections of finite size, which are iterable. Intended to be used
     with
+
+    IE has abstract methods: __len__, __iter__
     """
     __metaclass__ = abc.ABCMeta
     @classmethod
