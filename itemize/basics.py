@@ -21,9 +21,8 @@ from __future__ import absolute_import
 
 import collections
 
-from .shared import NotPassed, _ensure_tuple, RecordError, NoDispatch
-from .interfaces import Record, MutableRecord
-from .dispatcher import MethodDispatcher
+from .shared import NotPassed, _ensure_tuple, RecordError
+from .interfaces import Record, MutableRecord  # pylint: disable=unused-import
 
 from .extern.unroll import compr, unroll
 
@@ -105,14 +104,13 @@ def iterget(record, indexes, default=NotPassed):
             pass
     if not yielded:
         if default is NotPassed:
-            raise RecordError("Indexes not found: {0}".format(
-                ", ".join(repr(index) for index in indexes))
-            )
+            raise RecordError(str.format(
+                "Indexes not found: {0}",
+                ", ".join(repr(index) for index in indexes)
+            ))
         else:
             yield default
 
-
-        
 @unroll(_first)
 def get(record, indexes, default=NotPassed):
     """
@@ -162,7 +160,7 @@ def pairs(record):
     elif isinstance(record, collections.Sequence) and not isinstance(record, basestring):
         return list(enumerate(record))
     else:
-        raise TypeError("'record' should be a Mapping or Sequence.")        
+        raise TypeError("'record' should be a Mapping or Sequence.")
 
 def indexes(record):
     """
