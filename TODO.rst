@@ -1,24 +1,13 @@
 TODO Lists
 ===================
 
-Basics
------------------
-* Add type annotations, as per PEP 484
-
-
 Needed Features
 -----------------
-* Setter: Recursive/chain iterset - parallel to iterget. probably contained in recursive.py (possibly in basics.py)
-* Deleter: Recursive/chain iterdel - parallel to iterget.
+* recursive.py core functions: setter, deleter, iter - parallel to basics.iterget
 * Provide easy adaptors to allow this to work for objects. Ex. 'get' applied to getting attributes (this is basically the same as the old _tryget) ~ get(vars(obj), names, default=None).
-* Fill in examples in README.rst
-* Add class description/doc for interfaces: Record, MutableRecord, Discrete, DiscreteRecord, DiscreteMutableRecord
-* Add class description/doc for chain.py: SimpleChainRecord, DiscreteChainRecord, ChainRecord
-
 
 Refactoring
 -----------------
-* Remove to seperate repoß: MethodDispatcher
 
 Unittests
 ----------
@@ -35,13 +24,14 @@ Packaging
 -----------------
 * Fill in README.rst - esp examples
 * setup.py is ugly
+* Add class description/doc for interfaces: Record, MutableRecord, Discrete, DiscreteRecord, DiscreteMutableRecord
+* Add class description/doc for chain.py: SimpleChainRecord, DiscreteChainRecord, ChainRecord
 
 Bugs
 -----------
 * Standardize handling of 'indexes', across functions. For example, `missing()` does not cast indexes to tuple, but `get()` does.
     * Standardize handling of 'indexes' in chain.ChainRecord
 * Functions in basics.py should raise custom Exception types, not builtins.
-* basics.pairs, basics.indices, basics.elements: the return type is uncertain. Arrange it to cast to list. Requires smart checking of return type. Sequences[x] --> List[x], Iterable[x] --> List[x], List[x] unchanged, Atomic[x] (non-Sequence) --> List[Atomic[x]].
 * chain.ChainRecord: exceptions raised should be custom exception types.
 * chain.ChainRecord.iterget: should raise: class RecordIndexError(RecordError, KeyError, IndexError)
 
