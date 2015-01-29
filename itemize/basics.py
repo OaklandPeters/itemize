@@ -41,27 +41,37 @@ __all__ = [
 ]
 
 
-def missing(record, indexes):
-    """Return list of indexes which are not present in record.
-
-    Note: because this accepts Records, and not Mappings, it cannot
+def itermissing(record, indexes):
+    """
+    Iterate over indexes which are not present in record.
+    Notes:
+    (1) Because this accepts Records, and not Mappings, it cannot
         simply check 'index in record'.
-    Note #2: For Records with default values (such as defaultdict),
+    (2) For Records with default values (such as defaultdict),
         this function will not report any values as missing.
+    (3) Invalid list.__get__ raises LookupError or IndexError
+        Invalid dict.__get__ raises KeyError
+        LookupError = (KeyError, IndexError)
 
     @type: record: Record[Any, Any]
     @type: indexes: Union[Sequence[Any], Any]
-    @rtype: Sequence[Any]
+    @rtype: Iterator[Any]
     """
-    @compr(list)
-    def missing_indexes():
-        """ mylist['string'] raises TypeError """
-        for index in indexes:
-            try:
-                value = record[index]
-            except (LookupError, TypeError):
-                yield index
-    return missing_indexes
+    for index in indexes:
+        try:
+            record[index]
+        except (LookupError, TypeError):
+            yield index
+
+def missing(record, indexes):
+    """
+    Return list of indexes which are not present in record.
+
+    @type: record: Record[Any, Any]
+    @type: indexes: Union[Sequence[Any], Any]
+    @rtype: List[Any]
+    """
+    return list(itermissing(record, indexes))
 
 def has(record, indexes):
     """Predicate.
