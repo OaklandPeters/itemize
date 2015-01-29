@@ -51,6 +51,8 @@ class Discrete(collections.Sized, collections.Iterable):
 
 class DiscreteRecord(Record, Discrete):
     """
+    Finite and iterable Record. Importantly, strings are Records but not DiscrteRecords.
+
     Quandry: Should DiscreteRecord inherit from Container?
         Context: Sequence, Set, and Mapping inherit from Sized, Iterable, and Container.
     """

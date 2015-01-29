@@ -1,5 +1,3 @@
-# from __future__ import absolute_import
-# 
-# __all__ = []
-# 
-# from 
+"""
+Recursion and chainable Record data types (which includes Mappings and Sequences).
+"""
