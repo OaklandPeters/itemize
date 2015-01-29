@@ -29,6 +29,7 @@ Packaging
 
 Bugs
 -----------
+* rec_iter returns incorrect values (although correct paths) for some nested Records. Example: {'a':(1, 2), 'b':3} VS {'b':3, 'a':(1, 2)}
 * Standardize handling of 'indexes', across functions. For example, `missing()` does not cast indexes to tuple, but `get()` does.
     * Standardize handling of 'indexes' in chain.ChainRecord
 * Functions in basics.py should raise custom Exception types, not builtins.
