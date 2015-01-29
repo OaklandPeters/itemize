@@ -1,21 +1,45 @@
 TODO Lists
 ===================
 
+Basics
+-----------------
+* Add type annotations, as per PEP 484
+
 
 Needed Features
 -----------------
- * Provide easy adaptors to allow this to work for objects. Ex. 'get' applied to getting attributes (this is basically the same as the old _tryget) ~ get(vars(obj), names, default=None).
- * Fill in examples in README.rst
- * Add class description/doc for interfaces: Record, MutableRecord, Discrete, DiscreteRecord, DiscreteMutableRecord
- * Add class description/doc for chain.py: SimpleChainRecord, DiscreteChainRecord, ChainRecord
- 
+* Setter: Recursive/chain iterset - parallel to iterget. probably contained in recursive.py (possibly in basics.py)
+* Deleter: Recursive/chain iterdel - parallel to iterget.
+* Provide easy adaptors to allow this to work for objects. Ex. 'get' applied to getting attributes (this is basically the same as the old _tryget) ~ get(vars(obj), names, default=None).
+* Fill in examples in README.rst
+* Add class description/doc for interfaces: Record, MutableRecord, Discrete, DiscreteRecord, DiscreteMutableRecord
+* Add class description/doc for chain.py: SimpleChainRecord, DiscreteChainRecord, ChainRecord
+
 
 Refactoring
 -----------------
- * Migrate dispatcher (MethodDispatcher) to it's own little repo
- * Re-write most of the README.rst template. It is currently based on `README.md <https://gist.github.com/jxson/1784669/>`_ by `Jason Campbell <https://gist.github.com/jxson/>`_ on Github.
+* Remove to seperate repoß: MethodDispatcher
+
+Unittests
+----------
+* interfaces. Expanded, and refactored into test_interfaces
+* Chain: refactor into test_chain.py
+* For basics.assert_missing
+* For basics.iterget
+* For basics.merge
+* For basics.pairs
+* For basics.indexes
+* For basics.elements
+
+Packaging
+-----------------
+* Fill in README.rst - esp examples
+* setup.py is ugly
 
 Bugs
------------------
- * Do NOT copy the .git folder from the packge_template - that folder maintains 'package_template' as it's own repo
- * setup.py is ugly
+-----------
+
+Advanced
+----------
+* recursive.py: function equivalents of __iter__, __setitem__, __getitem__, __delitem__, __eq__, and maybe __contains__, __len__, __missing__.
+* Even more advanced: incorporate these methods (recursive versions of __iter__, __getitem__, etc) onto a class `Recursor`, which works like a recursive iterator/viewport around a record.
