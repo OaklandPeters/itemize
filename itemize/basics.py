@@ -10,9 +10,24 @@ Guiding Principles:
 
 Note on type-hints: most locations where 'Any' is used, should be a generic type,
     as described in PEP 483 and PEP 484. For example, instaed of:
+        def get(record, indexes, default=NotPassed):
+            '''
+            @type: record: Record[Any, Any]
+            @type: indexes: Union[Sequence[Any], Any]
+            @type: default: Optional[Any]
+            @rtype: Any
+            '''
         def _first(iterable): # type: Callable[[Iterable[Any], Any]]
     It would be:
-        T = typing.typevar('T')
+        ValueType = typing.typevar('ValueType')
+        KeyType = typing.typevar('KeyType')
+        def get(record, indexes, default=NotPassed):
+            '''
+            @type: record: Record[KeyType, ValueType]
+            @type: indexes: Union[Sequence[KeyType], KeyType]
+            @type: default: Optional(ValueType)
+            @rtype: ValueType
+            '''
         def _first(iterable): # type: Callable[[Iterable[T]], T]
     However, since this is written before the `typing` module is released, this
     is not possible.
@@ -75,6 +90,7 @@ def assert_missing(record, indexes, name='object'):
     """
     @type: record: Record[Any, Any]
     @type: indexes: Union[Sequence[Any], Any]
+    @type: name: Optional[str]
     @rtype: Record[Any, Any]
     @raises: AssertionError
     """
@@ -90,8 +106,8 @@ def assert_missing(record, indexes, name='object'):
 def iterget(record, indexes, default=NotPassed):
     """
     @type: record: Record[Any, Any]
-    @type: indexes: Union[Sequence, Any]
-    @type: default: Union[NotPassed, Any]
+    @type: indexes: Union[Sequence[Any], Any]
+    @type: default: Optional[Any]
     @rtype: Iterator[Any]
     """
     indexes = _ensure_tuple(indexes)
@@ -115,8 +131,8 @@ def iterget(record, indexes, default=NotPassed):
 def get(record, indexes, default=NotPassed):
     """
     @type: record: Record[Any, Any]
-    @type: indexes: Union[Sequence, Any]
-    @type: default: Union[NotPassed, Any]
+    @type: indexes: Union[Sequence[Any], Any]
+    @type: default: Optional[Any]
     @rtype: Any
     """
     return iterget(record, indexes, default)
@@ -126,7 +142,7 @@ def get_all(record, indexes, default=NotPassed):
     """
     @type: record: Record[Any, Any]
     @type: indexes: Union[Sequence[Any], Any]
-    @type: default: Union[Any, NotPassed]
+    @type: default: Optional[Any]
     @rtype: List[Any]
     """
     #return list(iterget(record, indexes, default))
