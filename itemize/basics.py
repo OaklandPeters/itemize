@@ -36,7 +36,7 @@ __all__ = [
     'get_all',
     'merge',
     'pairs',
-    'indexes',
+    'indices',
     'elements',
 ]
 
@@ -172,7 +172,7 @@ def pairs(record):
     else:
         raise TypeError("'record' should be a Mapping or Sequence.")
 
-def indexes(record):
+def indices(record):
     """
     Generalization of Mapping.keys().
     @type: record: Record[Any, Any]
