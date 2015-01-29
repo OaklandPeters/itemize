@@ -24,7 +24,7 @@ import collections
 from .shared import NotPassed, _ensure_tuple, RecordError
 from .interfaces import Record, MutableRecord  # pylint: disable=unused-import
 
-from .extern.unroll import compr, unroll
+from .extern.unroll import unroll
 
 
 __all__ = [
@@ -40,8 +40,8 @@ __all__ = [
     'elements',
 ]
 
-
-def itermissing(record, indexes):
+@unroll(list)
+def missing(record, indexes):
     """
     Iterate over indexes which are not present in record.
     Notes:
@@ -55,23 +55,13 @@ def itermissing(record, indexes):
 
     @type: record: Record[Any, Any]
     @type: indexes: Union[Sequence[Any], Any]
-    @rtype: Iterator[Any]
+    @rtype: List[Any]
     """
     for index in indexes:
         try:
             record[index]
         except (LookupError, TypeError):
             yield index
-
-def missing(record, indexes):
-    """
-    Return list of indexes which are not present in record.
-
-    @type: record: Record[Any, Any]
-    @type: indexes: Union[Sequence[Any], Any]
-    @rtype: List[Any]
-    """
-    return list(itermissing(record, indexes))
 
 def has(record, indexes):
     """Predicate.
@@ -155,6 +145,7 @@ def merge(*records):
         for index, element in pairs(record)
     )
 
+@unroll(list)
 def pairs(record):
     """
     Generalization of Mapping.items().
@@ -164,42 +155,46 @@ def pairs(record):
     """
     if isinstance(record, collections.Mapping):
         if hasattr(record, 'items'):
-            return record.items()
+            return iter(record.items())
         else:
-            return collections.Mapping.items(record)
+            return iter(collections.Mapping.items(record))
     elif isinstance(record, collections.Sequence) and not isinstance(record, basestring):
-        return list(enumerate(record))
+        return enumerate(record)
     else:
         raise TypeError("'record' should be a Mapping or Sequence.")
 
+@unroll(list)
 def indices(record):
     """
     Generalization of Mapping.keys().
     @type: record: Record[Any, Any]
-    @rtype: Iterable[]
+    @rtype: List[Any]
+    @raises: TypeError
     """
     if isinstance(record, collections.Mapping):
         if hasattr(record, 'keys'):
-            return record.keys()
+            return iter(record.keys())
         else:
-            return collections.Mapping.keys(record)
+            return iter(collections.Mapping.keys(record))
     elif isinstance(record, collections.Sequence) and not isinstance(record, basestring):
-        return list(index for index, elm in enumerate(record))
+        return (index for index, elm in enumerate(record))
     else:
         raise TypeError("'record' should be a Mapping or Sequence.")
 
+@unroll(list)
 def elements(record):
     """Generalization of .values().
     @type: record: Record[Any, Any]
-    @rtype: Iterable[Any]
+    @rtype: List[Any]
+    @raises: TypeError
     """
     if isinstance(record, collections.Mapping):
         if hasattr(record, 'values'):
-            return record.values()
+            return iter(record.values())
         else:
-            return collections.Mapping.values(record)
+            return iter(collections.Mapping.values(record))
     elif isinstance(record, collections.Sequence) and not isinstance(record, basestring):
-        return list(elm for index, elm in enumerate(record))
+        return (elm for index, elm in enumerate(record))
     else:
         raise TypeError("'record' should be a Mapping or Sequence.")
 
