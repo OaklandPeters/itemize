@@ -2,43 +2,29 @@
 Core functions for the 'itemize' package.
 
 Guiding Principles:
-(1) Strictness: These should depend only on the Record having __getitem__
+(1) Unity: These should depend on the core argument meeting
+    interfaces.Record (thus having __getitem__)
+(2) Restraint: These should not depend on the Record being mutable. Any
+    function needing mutablitity should be moved to recursive.py
 
 
-@todo: Add Epydoc strings @type & @return + 1 sentance description of functions
-
-@todo: Add recursive/chain iterset - parallel to iterget
-
-@todo: Decide on @MethodDispatcher: problem: get(mydict, 'a') dispatches to mydict.get('a')
-    Which I do NOT want
-    I DO want it to dispatch to get for ChainRecord, etc
-
-@todo: Rest get(), get_all(), on operator.itemgetter()   (standard library)
-
-
-
-
-@todo: unittests for these functions.
-    Unittests written:
-        missing
-        has
-
-@todo: Consider making some/many of these into dispatch functions.
-    ... of the Pythonic type, where they defer to methods on first argument,
-        if one exists, and have default behavior otherwise.
-    @todo: Example: get(mydict, 'value', default=) makes use of mydict.get() 
-        ... requires special vectorizing handling if multiple keys passed in
-            
-
+Note on type-hints: most locations where 'Any' is used, should be a generic type,
+    as described in PEP 483 and PEP 484. For example, instaed of:
+        def _first(iterable): # type: Callable[[Iterable[Any], Any]]
+    It would be:
+        T = typing.typevar('T')
+        def _first(iterable): # type: Callable[[Iterable[T]], T]
+    However, since this is written before the `typing` module is released, this
+    is not possible.
 """
 from __future__ import absolute_import
+
 import collections
-# Local imports from this package
+
 from .shared import NotPassed, _ensure_tuple, RecordError, NoDispatch
-#from .chain import ChainRecord
 from .interfaces import Record, MutableRecord
 from .dispatcher import MethodDispatcher
-# Local imports from external support libraries
+
 from .extern.unroll import compr, unroll
 
 
@@ -49,16 +35,13 @@ __all__ = [
     'iterget',
     'get',
     'get_all',
-    #'chain',    # currently not provided. Should I introduce as access point to chainrecord?
     'merge',
     'pairs',
     'indexes',
-    'elements',    
+    'elements',
 ]
-# Future: ChainObject
 
 
-        
 def missing(record, indexes):
     """Return list of indexes which are not present in record.
 
@@ -66,6 +49,10 @@ def missing(record, indexes):
         simply check 'index in record'.
     Note #2: For Records with default values (such as defaultdict),
         this function will not report any values as missing.
+
+    @type: record: Record[Any, Any]
+    @type: indexes: Union[Sequence[Any], Any]
+    @rtype: Sequence[Any]
     """
     @compr(list)
     def missing_indexes():
@@ -78,10 +65,20 @@ def missing(record, indexes):
     return missing_indexes
 
 def has(record, indexes):
-    """Predicate. """
+    """Predicate.
+    @type: record: Record[Any, Any]
+    @type: indexes: Union[Sequence[Any], Any]
+    @rtype: bool
+    """
     return len(missing(record, indexes)) == 0
 
 def assert_missing(record, indexes, name='object'):
+    """
+    @type: record: Record[Any, Any]
+    @type: indexes: Union[Sequence[Any], Any]
+    @rtype: Record[Any, Any]
+    @raises: AssertionError
+    """
     missing_indexes = missing(record, indexes)
     if len(missing_indexes) == 0:
         return record
@@ -91,8 +88,13 @@ def assert_missing(record, indexes, name='object'):
             name, ", ".join(indexes)
         ))
 
-#@MethodDispatcher()
 def iterget(record, indexes, default=NotPassed):
+    """
+    @type: record: Record[Any, Any]
+    @type: indexes: Union[Sequence, Any]
+    @type: default: Union[NotPassed, Any]
+    @rtype: Iterator[Any]
+    """
     indexes = _ensure_tuple(indexes)
     yielded = False
     for index in indexes:
@@ -109,39 +111,49 @@ def iterget(record, indexes, default=NotPassed):
         else:
             yield default
 
-def _first(iterable):
-    return iter(iterable).next()
+
         
-#@MethodDispatcher()
 @unroll(_first)
 def get(record, indexes, default=NotPassed):
+    """
+    @type: record: Record[Any, Any]
+    @type: indexes: Union[Sequence, Any]
+    @type: default: Union[NotPassed, Any]
+    @rtype: Any
+    """
     return iterget(record, indexes, default)
 
-#@MethodDispatcher()
 @unroll(list)
 def get_all(record, indexes, default=NotPassed):
+    """
+    @type: record: Record[Any, Any]
+    @type: indexes: Union[Sequence[Any], Any]
+    @type: default: Union[Any, NotPassed]
+    @rtype: List[Any]
+    """
     #return list(iterget(record, indexes, default))
     return iterget(record, indexes, default)
 
-
-
-
-
-
-
-
 def merge(*records):
+    """
+    Combines records into a dictionary, with later records potentially
+    overriding earlier ones.
+    @type: records: Tuple[Record[Any, Any]]
+    @rtype: Dict[Any, Any]
+    """
     return dict(
         (index, element)
         for record in reversed(records)
         for index, element in pairs(record)
     )
 
-# Moved: because chain.py depends on basics.py
-# def chain(*records, **kwargs):
-#     return ChainRecord(*records, **kwargs)
-
 def pairs(record):
+    """
+    Generalization of Mapping.items().
+    @type: record: Record[Any, Any]
+    @rtype: List[Tuple[Any, Any]]
+    @raises: TypeError
+    """
     if isinstance(record, collections.Mapping):
         if hasattr(record, 'items'):
             return record.items()
@@ -153,7 +165,11 @@ def pairs(record):
         raise TypeError("'record' should be a Mapping or Sequence.")        
 
 def indexes(record):
-    """Generalization of .keys(). Works on sequences or mappings."""
+    """
+    Generalization of Mapping.keys().
+    @type: record: Record[Any, Any]
+    @rtype: Iterable[]
+    """
     if isinstance(record, collections.Mapping):
         if hasattr(record, 'keys'):
             return record.keys()
@@ -165,7 +181,10 @@ def indexes(record):
         raise TypeError("'record' should be a Mapping or Sequence.")
 
 def elements(record):
-    """Generalization of .values(). Works on sequences or mappings."""
+    """Generalization of .values().
+    @type: record: Record[Any, Any]
+    @rtype: Iterable[Any]
+    """
     if isinstance(record, collections.Mapping):
         if hasattr(record, 'values'):
             return record.values()
@@ -175,3 +194,11 @@ def elements(record):
         return list(elm for index, elm in enumerate(record))
     else:
         raise TypeError("'record' should be a Mapping or Sequence.")
+
+# Local utility functions
+def _first(iterable):
+    """
+    @type: iterable: Iterable[Any]
+    @rtype: Any
+    """
+    return iter(iterable).next()
