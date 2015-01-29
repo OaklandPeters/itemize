@@ -161,12 +161,12 @@ def merge(*records):
         for index, element in pairs(record)
     )
 
-@unroll(list)
+
 def pairs(record):
     """
     Generalization of Mapping.items().
     @type: record: Record[Any, Any]
-    @rtype: List[Tuple[Any, Any]]
+    @rtype: Iterator[Tuple[Any, Any]]
     @raises: TypeError
     """
     if isinstance(record, collections.Mapping):
@@ -179,12 +179,11 @@ def pairs(record):
     else:
         raise TypeError("'record' should be a Mapping or Sequence.")
 
-@unroll(list)
 def indices(record):
     """
     Generalization of Mapping.keys().
     @type: record: Record[Any, Any]
-    @rtype: List[Any]
+    @rtype: Iterator[Any]
     @raises: TypeError
     """
     if isinstance(record, collections.Mapping):
@@ -197,7 +196,6 @@ def indices(record):
     else:
         raise TypeError("'record' should be a Mapping or Sequence.")
 
-@unroll(list)
 def elements(record):
     """Generalization of .values().
     @type: record: Record[Any, Any]
