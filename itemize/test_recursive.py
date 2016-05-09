@@ -68,6 +68,25 @@ class RecursionTests(unittest.TestCase):
 
         self.assertTrue(rec_eq(nestc, nestd))
 
+    def test_advanced(self):
+        mapping = {
+            'city': 'VIENNA', 'name': 'SECONDARY LIB',
+            'address1': 'SALMANNSDORFERSTR 47', 'address2': '',
+            'state': 'AUSTRIA', 'postal_code': '',
+            'account_number': '000003136', 'country': None,
+            'email_address': 's.stindl@ais.at', 'uuid': None
+        }
+        expected  = {
+            'city': 'VIENNA',
+            'state': 'AUSTRIA', 'postal_code': '', 
+            'account_number': '000003136', 'country': None, 
+            'address1': 'SALMANNSDORFERSTR 47', 'address2': '', 
+            'email_address': 's.stindl@ais.at', 
+            'name': 'SECONDARY LIB', 'uuid': None
+        }
+
+        self.assertTrue(rec_eq(mapping, expected))
+
 
 if __name__ == "__main__":
     unittest.main()
